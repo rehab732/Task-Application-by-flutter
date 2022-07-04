@@ -1,3 +1,4 @@
+import 'package:conditional_builder/conditional_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:testing/modules/archive/archive.dart';
@@ -5,6 +6,8 @@ import 'package:testing/modules/done/done.dart';
 import 'package:testing/modules/task/task.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:testing/shared/component/component.dart';
+
+import '../shared/component/constant.dart';
 
 class Homelayout extends StatefulWidget {
   @override
@@ -23,7 +26,6 @@ class _HomelayoutState extends State<Homelayout> {
   var titlecontroller = TextEditingController();
   var timecontroller = TextEditingController();
   var datecontroller = TextEditingController();
-  List<Map> tasks=[];
   @override
   void initState() {
     super.initState();
@@ -37,96 +39,107 @@ class _HomelayoutState extends State<Homelayout> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           if (isbottomsheet) {
-            insrtintoDatabase(title: titlecontroller.text, time: timecontroller.text, date: datecontroller.text);
-            Navigator.pop(context);
-            isbottomsheet = false;
-            setState(() {
-              iconadd = Icons.edit;
-            });
+            if (formkey.currentState!.validate()) {
+              insrtintoDatabase(
+                      title: titlecontroller.text,
+                      time: timecontroller.text,
+                      date: datecontroller.text)
+                  .then((value) {
+                getDataFromDataBase(database).then((value) {
+                  Navigator.pop(context);
+                  
+                  setState(() {
+                    iconadd = Icons.edit;
+                    isbottomsheet = false;
+                    tasks=value;
+                    print(tasks);
+                  });
+                  
+                });
+              });
+            }
           } else {
             Scaffoldkey.currentState!.showBottomSheet(
-              (context) => Container(
-                color: Colors.white,
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    formfieldd(
-                        controller: titlecontroller,
-                        type: TextInputType.text,
-                        validate: (String value) {
-                          if (value.isEmpty) {
-                            return 'title must not be empty';
-                          }
-                          return null;
-                        },
-                        labelText: 'Task Title',
-                        prefix: Icons.title,
-                        ispass: true,
-                        onTap: () {
-                          print('not null');
-                        },
-                        isclick: true),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    formfieldd(
-                        controller: timecontroller,
-                        type: TextInputType.datetime,
-                        onTap: () {
-                          showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime.parse('2021-05-03'),
-                          ).then((value) {
-                            datecontroller.text =
-                                DateFormat.yMMMd().format(value!);
-                          });
-                        },
-                        validate: (String value) {
-                          if (value.isEmpty) {
-                            return 'time must not be empty';
-                          }
-
-                          return null;
-                        },
-                        labelText: 'Task time',
-                        prefix: Icons.watch_later_outlined,
-                        ispass: true,
-                        isclick: true),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    formfieldd(
-                        controller: datecontroller,
-                        type: TextInputType.datetime,
-                      
-                        onTap: () {
-                          showDatePicker(
+                (context) => Container(
+                      color: Colors.white,
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          formfieldd(
+                              controller: titlecontroller,
+                              type: TextInputType.text,
+                              validate: (String value) {
+                                if (value.isEmpty) {
+                                  return 'title must not be empty';
+                                }
+                                return null;
+                              },
+                              labelText: 'Task Title',
+                              prefix: Icons.title,
+                              ispass: true,
+                              onTap: () {
+                                print('not null');
+                              },
+                              isclick: true),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          formfieldd(
+                              controller: timecontroller,
+                              type: TextInputType.datetime,
+                              onTap: () {
+                                showDatePicker(
                                   context: context,
                                   initialDate: DateTime.now(),
                                   firstDate: DateTime.now(),
-                                  lastDate: DateTime.parse('2022-7-20'))
-                              .then((value) {
-                                datecontroller.text=DateFormat.yMMMd().format(value!);
-                            
-                          });
-                        },
-                        validate: (String value) {
-                          if (value.isEmpty) {
-                            return 'date must not be empty';
-                          }
-                        },
-                        labelText: 'Task date',
-                        prefix: Icons.date_range_outlined,
-                        ispass: true,
-                        isclick: true)
-                  ],
-                ),
-              ),
-              elevation: 20.0
-            );
+                                  lastDate: DateTime.parse('2021-05-03'),
+                                ).then((value) {
+                                  datecontroller.text =
+                                      DateFormat.yMMMd().format(value!);
+                                });
+                              },
+                              validate: (String value) {
+                                if (value.isEmpty) {
+                                  return 'time must not be empty';
+                                }
+
+                                return null;
+                              },
+                              labelText: 'Task time',
+                              prefix: Icons.watch_later_outlined,
+                              ispass: true,
+                              isclick: true),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          formfieldd(
+                              controller: datecontroller,
+                              type: TextInputType.datetime,
+                              onTap: () {
+                                showDatePicker(
+                                        context: context,
+                                        initialDate: DateTime.now(),
+                                        firstDate: DateTime.now(),
+                                        lastDate: DateTime.parse('2022-7-20'))
+                                    .then((value) {
+                                  datecontroller.text =
+                                      DateFormat.yMMMd().format(value!);
+                                });
+                              },
+                              validate: (String value) {
+                                if (value.isEmpty) {
+                                  return 'date must not be empty';
+                                }
+                              },
+                              labelText: 'Task date',
+                              prefix: Icons.date_range_outlined,
+                              ispass: true,
+                              isclick: true)
+                        ],
+                      ),
+                    ),
+                elevation: 20.0);
             isbottomsheet = true;
             setState(() {
               iconadd = Icons.add;
@@ -137,7 +150,11 @@ class _HomelayoutState extends State<Homelayout> {
         },
         // child: Icon(iconadd),
       ),
-      body: screens[currentindex],
+      body: ConditionalBuilder(
+        condition: tasks.length > 0,
+        builder: (context) => screens[currentindex],
+        fallback: (context) => Center(child: CircularProgressIndicator()),
+      ),
       bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           elevation: 40,
@@ -184,10 +201,10 @@ class _HomelayoutState extends State<Homelayout> {
         print('Error while creating table ${onError.toString()}');
       });
     }, onOpen: (database) {
-      getDataFromDataBase(database).then((value){
-        tasks=value;
-        print(tasks);
-
+      getDataFromDataBase(database).then((value) {
+        setState(() {
+          tasks = value;
+        });
       });
       print('database opend');
     });
@@ -210,10 +227,7 @@ class _HomelayoutState extends State<Homelayout> {
     });
   }
 }
-Future <List<Map>>getDataFromDataBase(database)async{
-   return await database.rawQuery('SELECT * FROM TASKS');
-  
 
-
+Future<List<Map>> getDataFromDataBase(database) async {
+  return await database.rawQuery('SELECT * FROM TASKS');
 }
-
