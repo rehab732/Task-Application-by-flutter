@@ -7,3 +7,4 @@ class AppGetDatabaseLoading extends AppStates{}
 class AppInsertDatabase extends AppStates{}
 class Appchange extends AppStates{}
 class rawUpdate extends AppStates{}
+class AppDelete extends AppStates{}
