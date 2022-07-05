@@ -1,4 +1,3 @@
-import'dart:js';
 abstract class CounterStates{}
 class CounterInitialState extends CounterStates{}
 class CounterplusState extends CounterStates{
